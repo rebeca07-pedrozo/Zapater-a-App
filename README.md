@@ -1,3 +1,5 @@
+
+=======
 # Zapatería Aether (Bootstrap + TypeScript + Express)
 
 Tienda de zapatos de ejemplo con frontend en Bootstrap y un backend en Express escrito en TypeScript.
