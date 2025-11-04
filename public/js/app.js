@@ -1,10 +1,20 @@
-const fmt = (n) => n.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+// Formatear precios en COP
+const fmt = (n) => n.toLocaleString("es-CO", { style: "currency", currency: "COP" });
 
-async function loadProducts() {
-  const res = await fetch('/api/products');
-  const products = await res.json();
-  const list = document.getElementById('product-list');
-  list.innerHTML = products.map(p => `
+let allProducts = []; // guardará todos los productos cargados
+
+// Renderizar productos (con o sin filtro)
+function renderProducts(products) {
+  const list = document.getElementById("product-list");
+
+  if (products.length === 0) {
+    list.innerHTML = `<p class="text-center text-muted">No se encontraron productos que coincidan.</p>`;
+    return;
+  }
+
+  list.innerHTML = products
+    .map(
+      (p) => `
     <div class="col-12 col-sm-6 col-lg-4">
       <div class="card h-100 shadow-sm">
         <img src="${p.image}" class="card-img-top" alt="${p.name}">
@@ -19,29 +29,56 @@ async function loadProducts() {
         </div>
       </div>
     </div>
-  `).join('');
+  `
+    )
+    .join("");
 
-  list.querySelectorAll('button[data-id]').forEach(btn => {
-    btn.addEventListener('click', async () => {
+  // Eventos de agregar al carrito
+  list.querySelectorAll("button[data-id]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
       const productId = Number(btn.dataset.id);
       const qty = Number(btn.dataset.qty);
-      await fetch('/api/cart/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, qty })
+      await fetch("/api/cart/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, qty }),
       });
       updateCartCount();
     });
   });
+}
 
+// Cargar productos del backend
+async function loadProducts() {
+  const res = await fetch("/api/products");
+  allProducts = await res.json();
+  renderProducts(allProducts);
   updateCartCount();
 }
 
+// Actualizar cantidad del carrito
 async function updateCartCount() {
-  const res = await fetch('/api/cart');
+  const res = await fetch("/api/cart");
   const cart = await res.json();
   const count = cart.reduce((acc, i) => acc + i.qty, 0);
-  document.getElementById('cart-count').textContent = String(count);
+  document.getElementById("cart-count").textContent = String(count);
 }
+
+// 🔍 Filtro de búsqueda por nombre y rango de precios
+document.getElementById("search-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const nameTerm = document.getElementById("search-name").value.toLowerCase();
+  const min = Number(document.getElementById("min-price").value) || 0;
+  const max = Number(document.getElementById("max-price").value) || Infinity;
+
+  const filtered = allProducts.filter((p) => {
+    const matchesName = p.name.toLowerCase().includes(nameTerm);
+    const matchesPrice = p.price >= min && p.price <= max;
+    return matchesName && matchesPrice;
+  });
+
+  renderProducts(filtered);
+});
 
 loadProducts();
