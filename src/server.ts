@@ -4,6 +4,7 @@ import cookieSession from "cookie-session";
 import productsRouter from "./routes/products.js";
 import cartRouter from "./routes/cart.js";
 
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
