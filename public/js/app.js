@@ -1,9 +1,7 @@
-// Formatear precios en COP
 const fmt = (n) => n.toLocaleString("es-CO", { style: "currency", currency: "COP" });
 
-let allProducts = []; // guardará todos los productos cargados
+let allProducts = []; 
 
-// Renderizar productos (con o sin filtro)
 function renderProducts(products) {
   const list = document.getElementById("product-list");
 
@@ -33,22 +31,25 @@ function renderProducts(products) {
     )
     .join("");
 
-  // Eventos de agregar al carrito
+
   list.querySelectorAll("button[data-id]").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const productId = Number(btn.dataset.id);
       const qty = Number(btn.dataset.qty);
+
       await fetch("/api/cart/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId, qty }),
       });
+
       updateCartCount();
+      showToast(); 
     });
   });
 }
 
-// Cargar productos del backend
+
 async function loadProducts() {
   const res = await fetch("/api/products");
   allProducts = await res.json();
@@ -56,7 +57,6 @@ async function loadProducts() {
   updateCartCount();
 }
 
-// Actualizar cantidad del carrito
 async function updateCartCount() {
   const res = await fetch("/api/cart");
   const cart = await res.json();
@@ -64,7 +64,6 @@ async function updateCartCount() {
   document.getElementById("cart-count").textContent = String(count);
 }
 
-// 🔍 Filtro de búsqueda por nombre y rango de precios
 document.getElementById("search-form").addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -80,5 +79,21 @@ document.getElementById("search-form").addEventListener("submit", (e) => {
 
   renderProducts(filtered);
 });
+
+function showToast() {
+  const toastEl = document.getElementById("cart-toast");
+  if (!toastEl) {
+    console.warn("Toast no encontrado en el DOM");
+    return;
+  }
+
+  if (typeof bootstrap === "undefined" || !bootstrap.Toast) {
+    console.error("Bootstrap no está cargado correctamente");
+    return;
+  }
+
+  const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+  toast.show();
+}
 
 loadProducts();
