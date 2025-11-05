@@ -1,54 +1,87 @@
+# Aurora Shoes
 
-=======
-# Zapatería Aether (Bootstrap + TypeScript + Express)
+Proyecto desarrollado como práctica de **Programación Web**.  
+Simula una tienda de calzado con frontend en **Bootstrap + JavaScript** y backend en **Node.js con Express**, incluyendo un carrito de compras funcional con persistencia de datos.
 
-Tienda de zapatos de ejemplo con frontend en Bootstrap y un backend en Express escrito en TypeScript.
-El carrito se guarda por sesión (cookie-session) y el catálogo es en memoria.
+---
 
-## Requisitos
-- Node.js 18+
-- npm
+## Integrantes
 
-## Instalación
+| Nombre completo | Rol |
+|------------------|-----|
+| **Tania Reyes** | Desarrollo de pruebas |
+| **Sara Bernal** | Desarrollo de pruebas |
+| **Rebeca Pedrozo** | Desarrollo backend e integración |
+
+---
+
+## Dependencias utilizadas
+
+Las principales dependencias del proyecto son:
+
 ```bash
-npm install
+"dependencies": {
+  "express": "^4.18.2",
+  "cors": "^2.8.5"
+},
+"devDependencies": {
+  "typescript": "^5.3.3",
+  "ts-node": "^10.9.1"
+}
 ```
 
-## Desarrollo con ts-node
-```bash
+
+El proyecto se ejecuta en modo desarrollo con:
+
+npm run dev
+Rutas principales
+Ruta	Método	Descripción
+/api/products	GET	Devuelve el catálogo completo de productos.
+/api/cart	GET	Devuelve el contenido actual del carrito guardado en data.json.
+/api/cart/add	POST	Agrega un producto al carrito (requiere productId y qty).
+/api/cart/remove	POST	Elimina o disminuye la cantidad de un producto del carrito.
+/api/cart/clear	POST	Vacía completamente el carrito.
+/api/cart/total	GET	Calcula y devuelve el total a pagar del carrito.
+
+Todos los datos se guardan temporalmente en src/data/data.json usando el módulo fs.promises para simular persistencia.
+
+**Funcionamiento del carrito e integración front-back**
+El frontend (HTML + Bootstrap + JS) muestra el catálogo de productos consumiendo /api/products.
+Cada producto tiene un botón “Agregar al carrito”, que envía una petición POST a /api/cart/add.
+
+El backend valida los datos, guarda el carrito en data.json y responde con el estado actualizado.
+El carrito de compras (cart.html) carga la información desde /api/cart, mostrando:
+
+- Nombre del producto
+
+- Cantidad
+
+- Precio unitario y subtotal
+
+- Total general del pedido
+
+Al vaciar el carrito o eliminar productos, el frontend vuelve a comunicar los cambios al backend.
+
+Se incluye un Toast visual de Bootstrap que muestra un mensaje “🛒 Producto agregado al carrito”.
+
+**Tecnologías principales**
+Frontend: HTML5, Bootstrap 5.3, JavaScript (fetch API, módulos ES)
+
+- Backend: Node.js + Express
+
+- Lenguaje: TypeScript
+
+- Persistencia temporal: JSON (fs.promises)
+
+Diseño: Responsive y minimalista, con colores personalizados
+
+**Ejecución del proyecto**
+
+```
+npm install
 npm run dev
 ```
-Visita: http://localhost:3000
+Luego abrir en el navegador:
 
-## Producción (build + start)
-```bash
-npm run build
-npm start
-```
+👉 http://localhost:3000
 
-## Estructura
-```
-zapateria-app/
-├─ public/
-│  ├─ index.html
-│  ├─ cart.html
-│  ├─ js/
-│  │  ├─ app.js
-│  │  └─ cart.js
-│  └─ img/
-│     └─ shoe_*.png
-├─ src/
-│  ├─ routes/
-│  │  ├─ products.ts
-│  │  └─ cart.ts
-│  ├─ types/
-│  │  └─ index.d.ts
-│  └─ server.ts
-├─ package.json
-├─ tsconfig.json
-└─ README.md
-```
-
-## Notas
-- Este proyecto usa `type: module` para ESM.
-- Las imágenes son generadas localmente y sirven como placeholders.
