@@ -13,6 +13,13 @@
       "price": 179999,
       "image": "/img/shoe_3.png",
       "qty": 1
+    },
+    {
+      "id": 1,
+      "name": "Runner Azul",
+      "price": 199999,
+      "image": "/img/shoe_1.png",
+      "qty": 1
     }
   ]
 }
