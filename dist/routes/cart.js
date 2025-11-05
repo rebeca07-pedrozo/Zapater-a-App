@@ -7,7 +7,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const dataPath = path.resolve(__dirname, "../data/data.json");
 const dataDir = path.dirname(dataPath);
-// ✅ Asegura que el archivo data.json exista
 async function ensureDataFile() {
     try {
         await fs.mkdir(dataDir, { recursive: true });
@@ -22,7 +21,6 @@ async function ensureDataFile() {
         console.error("Error asegurando data.json:", err);
     }
 }
-// ✅ Lee el carrito guardado
 async function readData() {
     try {
         const raw = await fs.readFile(dataPath, "utf-8");
@@ -32,11 +30,9 @@ async function readData() {
         return { cart: [] };
     }
 }
-// ✅ Guarda los cambios del carrito
 async function saveData(data) {
     await fs.writeFile(dataPath, JSON.stringify(data, null, 2));
 }
-// Catálogo de productos (como referencia para validar)
 const catalog = [
     { id: 1, name: "Runner Azul", price: 199999, image: "/img/shoe_1.png", description: "Zapatilla ligera para correr, malla transpirable.", stock: 12 },
     { id: 2, name: "Classic Rojo", price: 149999, image: "/img/shoe_2.png", description: "Clásico urbano para uso diario.", stock: 24 },
@@ -48,13 +44,11 @@ const catalog = [
     { id: 8, name: "Noir Elegance", price: 229999, image: "/img/shoe_8.png", description: "Zapato formal negro con acabado premium.", stock: 9 },
     { id: 9, name: "Comet Rosa", price: 159999, image: "/img/shoe_9.png", description: "Estilo moderno con amortiguación ligera.", stock: 11 },
 ];
-// ✅ Obtener carrito
 router.get("/", async (_req, res) => {
     await ensureDataFile();
     const data = await readData();
     res.json(data.cart || []);
 });
-// ✅ Agregar producto al carrito
 router.post("/add", async (req, res) => {
     await ensureDataFile();
     const { productId, qty } = req.body;
@@ -71,7 +65,6 @@ router.post("/add", async (req, res) => {
     const data = await readData();
     const cart = data.cart || [];
     const existing = cart.find((i) => i.id === productId);
-    // 👇 Aquí agregamos también la imagen del producto
     if (existing) {
         existing.qty += qty;
     }
@@ -88,7 +81,6 @@ router.post("/add", async (req, res) => {
     await saveData(data);
     res.json({ message: "Producto agregado correctamente", cart });
 });
-// ✅ Eliminar producto del carrito
 router.post("/remove", async (req, res) => {
     await ensureDataFile();
     const { productId, qty } = req.body;
@@ -113,13 +105,11 @@ router.post("/remove", async (req, res) => {
     await saveData(data);
     res.json({ message: "Producto eliminado correctamente", cart });
 });
-// ✅ Vaciar carrito
 router.post("/clear", async (_req, res) => {
     await ensureDataFile();
     await saveData({ cart: [] });
     res.json({ ok: true });
 });
-// ✅ Calcular total
 router.get("/total", async (_req, res) => {
     await ensureDataFile();
     const data = await readData();
