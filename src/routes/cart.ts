@@ -1,5 +1,5 @@
 import { Router } from "express";
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 import type { Product } from "../types/index.d.js";
@@ -8,25 +8,33 @@ const router = Router();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-
 const dataPath = path.resolve(__dirname, "../data/data.json");
 const dataDir = path.dirname(dataPath);
 
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-if (!fs.existsSync(dataPath)) fs.writeFileSync(dataPath, JSON.stringify({ cart: [] }, null, 2));
-
-function readData() {
+async function ensureDataFile() {
   try {
-    const raw = fs.readFileSync(dataPath, "utf-8");
+    await fs.mkdir(dataDir, { recursive: true });
+    try {
+      await fs.access(dataPath);
+    } catch {
+      await fs.writeFile(dataPath, JSON.stringify({ cart: [] }, null, 2));
+    }
+  } catch (err) {
+    console.error("Error al asegurar data.json:", err);
+  }
+}
+
+async function readData() {
+  try {
+    const raw = await fs.readFile(dataPath, "utf-8");
     return JSON.parse(raw);
   } catch {
     return { cart: [] };
   }
 }
 
-function saveData(data: any) {
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+async function saveData(data: any) {
+  await fs.writeFile(dataPath, JSON.stringify(data, null, 2));
 }
 
 const catalog: Product[] = [
@@ -41,12 +49,14 @@ const catalog: Product[] = [
   { id: 9, name: "Comet Rosa", price: 159999, image: "/img/shoe_9.png", description: "Estilo moderno con amortiguación ligera.", stock: 11 },
 ];
 
-router.get("/", (_req, res) => {
-  const data = readData();
+router.get("/", async (_req, res) => {
+  await ensureDataFile();
+  const data = await readData();
   res.json(data.cart || []);
 });
 
-router.post("/add", (req, res) => {
+router.post("/add", async (req, res) => {
+  await ensureDataFile();
   const { productId, qty } = req.body;
 
   if (!productId || !qty) return res.status(400).json({ error: "Datos inválidos" });
@@ -54,7 +64,7 @@ router.post("/add", (req, res) => {
   const product = catalog.find((p) => p.id === productId);
   if (!product) return res.status(404).json({ error: "Producto no encontrado" });
 
-  const data = readData();
+  const data = await readData();
   const cart = data.cart || [];
   const existing = cart.find((i: any) => i.id === productId);
 
@@ -62,18 +72,20 @@ router.post("/add", (req, res) => {
   else cart.push({ id: productId, name: product.name, price: product.price, qty });
 
   data.cart = cart;
-  saveData(data);
+  await saveData(data);
 
   res.json(cart);
 });
 
-router.post("/clear", (_req, res) => {
-  saveData({ cart: [] });
+router.post("/clear", async (_req, res) => {
+  await ensureDataFile();
+  await saveData({ cart: [] });
   res.json({ ok: true });
 });
 
-router.get("/total", (_req, res) => {
-  const data = readData();
+router.get("/total", async (_req, res) => {
+  await ensureDataFile();
+  const data = await readData();
   const total = (data.cart || []).reduce(
     (acc: number, item: any) => acc + item.price * item.qty,
     0

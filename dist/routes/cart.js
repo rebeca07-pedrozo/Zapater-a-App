@@ -1,34 +1,38 @@
 import { Router } from "express";
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 const router = Router();
-// Para rutas correctas en ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// 🔹 Si estás corriendo el build (dist), súbete dos niveles.
-// Así cubrimos ambos casos: src/data y dist/data.
 const dataPath = path.resolve(__dirname, "../data/data.json");
 const dataDir = path.dirname(dataPath);
-// Crear carpeta y archivo si no existen
-if (!fs.existsSync(dataDir))
-    fs.mkdirSync(dataDir, { recursive: true });
-if (!fs.existsSync(dataPath))
-    fs.writeFileSync(dataPath, JSON.stringify({ cart: [] }, null, 2));
-// Funciones de lectura y escritura
-function readData() {
+async function ensureDataFile() {
     try {
-        const raw = fs.readFileSync(dataPath, "utf-8");
+        await fs.mkdir(dataDir, { recursive: true });
+        try {
+            await fs.access(dataPath);
+        }
+        catch {
+            await fs.writeFile(dataPath, JSON.stringify({ cart: [] }, null, 2));
+        }
+    }
+    catch (err) {
+        console.error("Error al asegurar data.json:", err);
+    }
+}
+async function readData() {
+    try {
+        const raw = await fs.readFile(dataPath, "utf-8");
         return JSON.parse(raw);
     }
     catch {
         return { cart: [] };
     }
 }
-function saveData(data) {
-    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+async function saveData(data) {
+    await fs.writeFile(dataPath, JSON.stringify(data, null, 2));
 }
-// Catálogo (idéntico)
 const catalog = [
     { id: 1, name: "Runner Azul", price: 199999, image: "/img/shoe_1.png", description: "Zapatilla ligera para correr, malla transpirable.", stock: 12 },
     { id: 2, name: "Classic Rojo", price: 149999, image: "/img/shoe_2.png", description: "Clásico urbano para uso diario.", stock: 24 },
@@ -40,20 +44,20 @@ const catalog = [
     { id: 8, name: "Noir Elegance", price: 229999, image: "/img/shoe_8.png", description: "Zapato formal negro con acabado premium.", stock: 9 },
     { id: 9, name: "Comet Rosa", price: 159999, image: "/img/shoe_9.png", description: "Estilo moderno con amortiguación ligera.", stock: 11 },
 ];
-// 🔹 Obtener carrito
-router.get("/", (_req, res) => {
-    const data = readData();
+router.get("/", async (_req, res) => {
+    await ensureDataFile();
+    const data = await readData();
     res.json(data.cart || []);
 });
-// 🔹 Agregar producto
-router.post("/add", (req, res) => {
+router.post("/add", async (req, res) => {
+    await ensureDataFile();
     const { productId, qty } = req.body;
     if (!productId || !qty)
         return res.status(400).json({ error: "Datos inválidos" });
     const product = catalog.find((p) => p.id === productId);
     if (!product)
         return res.status(404).json({ error: "Producto no encontrado" });
-    const data = readData();
+    const data = await readData();
     const cart = data.cart || [];
     const existing = cart.find((i) => i.id === productId);
     if (existing)
@@ -61,17 +65,17 @@ router.post("/add", (req, res) => {
     else
         cart.push({ id: productId, name: product.name, price: product.price, qty });
     data.cart = cart;
-    saveData(data);
+    await saveData(data);
     res.json(cart);
 });
-// 🔹 Vaciar carrito
-router.post("/clear", (_req, res) => {
-    saveData({ cart: [] });
+router.post("/clear", async (_req, res) => {
+    await ensureDataFile();
+    await saveData({ cart: [] });
     res.json({ ok: true });
 });
-// 🔹 Calcular total
-router.get("/total", (_req, res) => {
-    const data = readData();
+router.get("/total", async (_req, res) => {
+    await ensureDataFile();
+    const data = await readData();
     const total = (data.cart || []).reduce((acc, item) => acc + item.price * item.qty, 0);
     res.json({ total });
 });
