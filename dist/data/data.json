@@ -4,7 +4,8 @@
       "id": 1,
       "name": "Runner Azul",
       "price": 199999,
-      "qty": 2
+      "image": "/img/shoe_1.png",
+      "qty": 1
     }
   ]
 }

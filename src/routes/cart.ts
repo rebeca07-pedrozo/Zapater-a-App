@@ -20,7 +20,7 @@ async function ensureDataFile() {
       await fs.writeFile(dataPath, JSON.stringify({ cart: [] }, null, 2));
     }
   } catch (err) {
-    console.error("Error al asegurar data.json:", err);
+    console.error("Error asegurando data.json:", err);
   }
 }
 
@@ -59,22 +59,71 @@ router.post("/add", async (req, res) => {
   await ensureDataFile();
   const { productId, qty } = req.body;
 
-  if (!productId || !qty) return res.status(400).json({ error: "Datos inválidos" });
+  if (typeof productId !== "number" || typeof qty !== "number") {
+    return res.status(400).json({ error: "Los datos deben ser numéricos (productId, qty)" });
+  }
+
+  if (qty <= 0) {
+    return res.status(400).json({ error: "La cantidad debe ser mayor que cero" });
+  }
 
   const product = catalog.find((p) => p.id === productId);
-  if (!product) return res.status(404).json({ error: "Producto no encontrado" });
+  if (!product) {
+    return res.status(400).json({ error: "El producto no existe en el catálogo" });
+  }
 
   const data = await readData();
   const cart = data.cart || [];
   const existing = cart.find((i: any) => i.id === productId);
 
-  if (existing) existing.qty += qty;
-  else cart.push({ id: productId, name: product.name, price: product.price, qty });
+  if (existing) {
+    existing.qty += qty;
+  } else {
+    cart.push({
+      id: productId,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      qty
+    });
+  }
 
   data.cart = cart;
   await saveData(data);
 
-  res.json(cart);
+  res.json({ message: "Producto agregado correctamente", cart });
+});
+
+router.post("/remove", async (req, res) => {
+  await ensureDataFile();
+  const { productId, qty } = req.body;
+
+  if (typeof productId !== "number" || typeof qty !== "number") {
+    return res.status(400).json({ error: "Los datos deben ser numéricos (productId, qty)" });
+  }
+
+  if (qty <= 0) {
+    return res.status(400).json({ error: "La cantidad debe ser mayor que cero" });
+  }
+
+  const data = await readData();
+  const cart = data.cart || [];
+  const existing = cart.find((i: any) => i.id === productId);
+
+  if (!existing) {
+    return res.status(400).json({ error: "El producto no se encuentra en el carrito" });
+  }
+
+  existing.qty -= qty;
+  if (existing.qty <= 0) {
+    const index = cart.indexOf(existing);
+    cart.splice(index, 1);
+  }
+
+  data.cart = cart;
+  await saveData(data);
+
+  res.json({ message: "Producto eliminado correctamente", cart });
 });
 
 router.post("/clear", async (_req, res) => {
