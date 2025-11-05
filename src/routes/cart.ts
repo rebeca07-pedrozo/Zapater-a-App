@@ -1,7 +1,33 @@
 import { Router } from "express";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import type { Product } from "../types/index.d.js";
 
 const router = Router();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+const dataPath = path.resolve(__dirname, "../data/data.json");
+const dataDir = path.dirname(dataPath);
+
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+if (!fs.existsSync(dataPath)) fs.writeFileSync(dataPath, JSON.stringify({ cart: [] }, null, 2));
+
+function readData() {
+  try {
+    const raw = fs.readFileSync(dataPath, "utf-8");
+    return JSON.parse(raw);
+  } catch {
+    return { cart: [] };
+  }
+}
+
+function saveData(data: any) {
+  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+}
 
 const catalog: Product[] = [
   { id: 1, name: "Runner Azul", price: 199999, image: "/img/shoe_1.png", description: "Zapatilla ligera para correr, malla transpirable.", stock: 12 },
@@ -15,37 +41,43 @@ const catalog: Product[] = [
   { id: 9, name: "Comet Rosa", price: 159999, image: "/img/shoe_9.png", description: "Estilo moderno con amortiguación ligera.", stock: 11 },
 ];
 
-router.use((req, _res, next) => {
-  if (!req.session!.cart) req.session!.cart = [];
-  next();
-});
-
-router.get("/", (req, res) => {
-  res.json(req.session!.cart);
+router.get("/", (_req, res) => {
+  const data = readData();
+  res.json(data.cart || []);
 });
 
 router.post("/add", (req, res) => {
   const { productId, qty } = req.body;
-  const product = catalog.find(p => p.id === productId);
+
+  if (!productId || !qty) return res.status(400).json({ error: "Datos inválidos" });
+
+  const product = catalog.find((p) => p.id === productId);
   if (!product) return res.status(404).json({ error: "Producto no encontrado" });
 
-  const cart = req.session!.cart!;
+  const data = readData();
+  const cart = data.cart || [];
   const existing = cart.find((i: any) => i.id === productId);
+
   if (existing) existing.qty += qty;
   else cart.push({ id: productId, name: product.name, price: product.price, qty });
 
-  req.session!.cart = cart;
+  data.cart = cart;
+  saveData(data);
+
   res.json(cart);
 });
 
-router.post("/clear", (req, res) => {
-  req.session!.cart = [];
+router.post("/clear", (_req, res) => {
+  saveData({ cart: [] });
   res.json({ ok: true });
 });
 
-router.get("/total", (req, res) => {
-  const cart = req.session!.cart || [];
-  const total = cart.reduce((acc: number, item: any) => acc + item.price * item.qty, 0);
+router.get("/total", (_req, res) => {
+  const data = readData();
+  const total = (data.cart || []).reduce(
+    (acc: number, item: any) => acc + item.price * item.qty,
+    0
+  );
   res.json({ total });
 });
 
