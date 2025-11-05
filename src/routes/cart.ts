@@ -3,7 +3,6 @@ import type { Product } from "../types/index.d.js";
 
 const router = Router();
 
-// Catálogo temporal en memoria (debería ser el mismo de products.ts)
 const catalog: Product[] = [
   { id: 1, name: "Runner Azul", price: 199999, image: "/img/shoe_1.png", description: "Zapatilla ligera para correr, malla transpirable.", stock: 12 },
   { id: 2, name: "Classic Rojo", price: 149999, image: "/img/shoe_2.png", description: "Clásico urbano para uso diario.", stock: 24 },
@@ -16,18 +15,15 @@ const catalog: Product[] = [
   { id: 9, name: "Comet Rosa", price: 159999, image: "/img/shoe_9.png", description: "Estilo moderno con amortiguación ligera.", stock: 11 },
 ];
 
-// Inicializar carrito en sesión si no existe
 router.use((req, _res, next) => {
   if (!req.session!.cart) req.session!.cart = [];
   next();
 });
 
-// Obtener carrito actual
 router.get("/", (req, res) => {
   res.json(req.session!.cart);
 });
 
-// Agregar producto al carrito
 router.post("/add", (req, res) => {
   const { productId, qty } = req.body;
   const product = catalog.find(p => p.id === productId);
@@ -42,13 +38,11 @@ router.post("/add", (req, res) => {
   res.json(cart);
 });
 
-// Vaciar carrito
 router.post("/clear", (req, res) => {
   req.session!.cart = [];
   res.json({ ok: true });
 });
 
-// 🔹 NUEVA RUTA: calcular total del carrito
 router.get("/total", (req, res) => {
   const cart = req.session!.cart || [];
   const total = cart.reduce((acc: number, item: any) => acc + item.price * item.qty, 0);
