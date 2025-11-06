@@ -35,10 +35,10 @@ curl http://localhost:3000/api/cart/total
 ## Resultados de las pruebas
 
 Todo correcto:  
-✅ API responde a todos los endpoints  
-✅ Manejo de errores validado  
-✅ Carrito se actualiza correctamente  
-✅ Total calculado con precisión
+API responde a todos los endpoints  
+Manejo de errores validado  
+Carrito se actualiza correctamente  
+Total calculado con precisión
 
 ---
 
