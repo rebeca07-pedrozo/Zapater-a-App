@@ -36,12 +36,12 @@ El proyecto se ejecuta en modo desarrollo con:
 npm run dev
 Rutas principales
 Ruta	Método	Descripción
-/api/products	GET	Devuelve el catálogo completo de productos.
-/api/cart	GET	Devuelve el contenido actual del carrito guardado en data.json.
-/api/cart/add	POST	Agrega un producto al carrito (requiere productId y qty).
-/api/cart/remove	POST	Elimina o disminuye la cantidad de un producto del carrito.
-/api/cart/clear	POST	Vacía completamente el carrito.
-/api/cart/total	GET	Calcula y devuelve el total a pagar del carrito.
+- /api/products	GET	Devuelve el catálogo completo de productos.
+- /api/cart	GET	Devuelve el contenido actual del carrito guardado en data.json.
+- /api/cart/add	POST	Agrega un producto al carrito (requiere productId y qty).
+- /api/cart/remove	POST	Elimina o disminuye la cantidad de un producto del carrito.
+- /api/cart/clear	POST	Vacía completamente el carrito.
+- /api/cart/total	GET	Calcula y devuelve el total a pagar del carrito.
 
 Todos los datos se guardan temporalmente en src/data/data.json usando el módulo fs.promises para simular persistencia.
 
