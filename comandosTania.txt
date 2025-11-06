@@ -1,0 +1,16 @@
+curl -X POST http://localhost:3000/api/security/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"tania@example.com","password":"123456"}'
+{"message":"Usuario registrado exitosamente"}@TaniaNR08 ➜ /worcurl -X POST http://localhost:3000/api/security/login \ST http://localhost:3000/api/security/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"tania@example.com","password":"123456"}'
+{"message":"Login exitoso","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRhbmlhQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYyMzg2OTc4LCJleHAiOjE3NjIzOTA1Nzh9.dBuzDIf3--NY4A_v_Bx5gSOicBj_hh6CPCLoVYnq6bo"}@TaniaNR08 ➜ /workspaces/Zapater-a-App (TaniaNRcurl -X POST http://localhost:3000/api/security/register \rity/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"tania@example.com","password":"123456"}'
+{"message":"Usuario registrado exitosamente"}@TaniaNR08 ➜ /worcurl -X POST http://localhost:3000/api/security/login \ST http://localhost:3000/api/security/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"tania@example.com","password":"123456"}'
+{"message":"Login exitoso","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRhbmlhQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYyMzg3ODE3LCJleHAiOjE3NjIzOTE0MTd9.8eFzW3GMCqvJGQxnwYy8U1X4drDeepuk1E3WPnPU4Tc"}@TaniaNR08 ➜ /workspaces/Zapater-a-App (TaniaNRcurl -X GET http://localhost:3000/api/security/profile \urity/profile \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRhbmlhQGV4YW1wbGUuY29tIiwiaWF0IjoxNzYyMzg3ODE3LCJleHAiOjE3NjIzOTE0MTd9.8eFzW3GMCqvJGQxnwYy8U1X4drDeepuk1E3WPnPU4Tc"
+{"message":"Acceso permitido al perfil protegido","user":{"email":"tania@example.com","iat":1762387817,"exp":1762391417}}@TaniaNR08 ➜ /workspaces/Zapater-a-curl -X POST http://localhost:3000/api/security/logoutst:3000/api/security/logout
+{"message":"Sesión cerrada correctamente (token invalidado en curl -X GET http://localhost:3000/api/security/profileaNR08-security) $ curl -X GET http://localhost:3000/api/security/profile
