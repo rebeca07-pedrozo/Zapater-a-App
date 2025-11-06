@@ -1,3 +1,32 @@
 {
-  "cart": []
+  "cart": [
+    {
+      "id": 2,
+      "name": "Classic Rojo",
+      "price": 149999,
+      "image": "/img/shoe_2.png",
+      "qty": 4
+    },
+    {
+      "id": 3,
+      "name": "Eco Verde",
+      "price": 179999,
+      "image": "/img/shoe_3.png",
+      "qty": 1
+    },
+    {
+      "id": 1,
+      "name": "Runner Azul",
+      "price": 199999,
+      "image": "/img/shoe_1.png",
+      "qty": 1
+    },
+    {
+      "id": 6,
+      "name": "Trail Gris",
+      "price": 209999,
+      "image": "/img/shoe_6.png",
+      "qty": 1
+    }
+  ]
 }
