@@ -7,10 +7,10 @@ function renderProducts(products) {
 
   if (products.length === 0) {
     list.innerHTML = `<p class="text-center text-muted">No se encontraron productos que coincidan.</p>`;
-    return;
+    return;    
   }
 
-  list.innerHTML = products
+  list.innerHTML = products   
     .map(
       (p) => `
     <div class="col-12 col-sm-6 col-lg-4">
@@ -78,7 +78,7 @@ document.getElementById("search-form").addEventListener("submit", (e) => {
   });
 
   renderProducts(filtered);
-});
+}); //para el commit que me quedó mal  AJAJAJA
 
 function showToast() {
   const toastEl = document.getElementById("cart-toast");
